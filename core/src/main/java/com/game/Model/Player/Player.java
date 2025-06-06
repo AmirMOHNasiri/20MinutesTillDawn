@@ -160,6 +160,12 @@ public class Player {
         return String.valueOf(score);
     }
 
+    public Integer getScoreAsInteger() {return score;}
+
+    public Integer getKills() {return kills;}
+
+    public Float getMostTimeAlive() {return mostTimeAlive;}
+
     public void increaseScore(int score) {
         this.score += score;
     }

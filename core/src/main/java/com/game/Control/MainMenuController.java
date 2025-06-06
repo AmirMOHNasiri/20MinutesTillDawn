@@ -2,10 +2,7 @@ package com.game.Control;
 
 import com.game.Main;
 import com.game.Model.Manage.GameAssetManager;
-import com.game.View.LoginMenuView;
-import com.game.View.MainMenuView;
-import com.game.View.PreGameMenuView;
-import com.game.View.ProfileMenuView;
+import com.game.View.*;
 
 public class MainMenuController {
     private MainMenuView view;
@@ -21,7 +18,13 @@ public class MainMenuController {
     }
     public void continueButtonPressed() {}
     public void talentButtonPressed() {}
-    public void scoreboardButtonPressed() {}
+    public void scoreboardButtonPressed() {
+        Main.getMain().setScreen(new ScoreboardMenuView(
+            new ScoreboardMenuController(view.getCurrentPlayer()),
+            GameAssetManager.getGameAssetManager().getSkin(),
+            view.getCurrentPlayer()
+        ));
+    }
     public void logoutButtonPressed() {
         Main.getMain().setScreen(new LoginMenuView(new LoginMenuController(), GameAssetManager.getGameAssetManager().getSkin()));
     }
