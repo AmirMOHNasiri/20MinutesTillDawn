@@ -34,6 +34,10 @@ public class Bullet {
         }
     }
 
+    public static Texture getDefaultTexture() {
+        return defaultTexture;
+    }
+
     public Bullet(Vector2 startPosition, Vector2 direction, float speed,
                   int damage, float maxRange) {
         this.position = new Vector2(startPosition);

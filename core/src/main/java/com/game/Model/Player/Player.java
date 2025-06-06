@@ -58,6 +58,10 @@ public class Player {
     private boolean isInvincible;
     private float invincibleTimer;
 
+    private Integer level;
+    private Integer currentXp;
+    private Integer xpForNextLevel;
+
     public Player() {}
 
     public Player(String username, String password, Avatar avatar, Question question, String answer) {
@@ -71,6 +75,47 @@ public class Player {
         this.mostTimeAlive = 0;
         this.isInvincible = false;
         this.invincibleTimer = 0f;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
+    }
+
+    public Integer getCurrentXp() {
+        return currentXp;
+    }
+
+    public void addXp(int amount) {
+        this.currentXp += amount;
+        Gdx.app.log("XP", "Gained " + amount + " XP. Total: " + currentXp + "/" + xpForNextLevel);
+
+        while (currentXp >= xpForNextLevel) {
+            levelUp();
+        }
+    }
+
+    private void levelUp() {
+        this.level++;
+        this.currentXp -= this.xpForNextLevel;
+        this.xpForNextLevel = 20 * this.level;
+        Gdx.app.log("LEVEL UP!", "Reached Level " + this.level + "! Next level at " + this.xpForNextLevel + " XP.");
+        // TODO: اعمال آپگریدهای مربوط به لول آپ
+    }
+
+    public void setCurrentXp(Integer currentXp) {
+        this.currentXp = currentXp;
+    }
+
+    public Integer getXpForNextLevel() {
+        return xpForNextLevel;
+    }
+
+    public void setXpForNextLevel(Integer xpForNextLevel) {
+        this.xpForNextLevel = xpForNextLevel;
     }
 
     public static boolean isValidPassword(String password, Label label) {

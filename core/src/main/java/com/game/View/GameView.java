@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Cursor;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -12,13 +14,25 @@ import com.game.Control.GameController;
 import com.game.Main;
 import com.game.Model.Manage.GameAssetManager;
 
+import java.awt.*;
+
 public class GameView implements Screen, InputProcessor {
     private Stage stage;
     private final GameController controller;
+    private Cursor customCursor;
 
     public GameView(GameController controller) {
         this.controller = controller;
         controller.setView(this);
+
+        try {
+            Pixmap pixmap = new Pixmap(Gdx.files.internal("Sprite/T_CursorSprite.png"));
+            customCursor = Gdx.graphics.newCursor(pixmap, pixmap.getWidth() / 2, pixmap.getHeight() / 2);
+            Gdx.graphics.setCursor(customCursor);
+            pixmap.dispose();
+        } catch (Exception e) {
+            Gdx.app.error("Cursor", "Failed to load custom cursor", e);
+        }
     }
 
     @Override
@@ -54,7 +68,10 @@ public class GameView implements Screen, InputProcessor {
 
     @Override
     public void hide() {
-
+        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+        if (customCursor != null) {
+            customCursor.dispose();
+        }
     }
 
     @Override
@@ -66,6 +83,10 @@ public class GameView implements Screen, InputProcessor {
     public boolean keyDown(int i) {
         if (i == Input.Keys.R) {
             controller.getGunController().startReload();
+            return true;
+        }
+        if (i == Input.Keys.SPACE) {
+            controller.getGunController().toggleAutoAim();
             return true;
         }
         return false;

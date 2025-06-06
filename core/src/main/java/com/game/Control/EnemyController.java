@@ -11,6 +11,7 @@ import com.game.Main;
 import com.game.Model.CollisionRect;
 import com.game.Model.Enemy.Enemy;
 import com.game.Model.Enemy.EnemyType;
+import com.game.Model.Enemy.XpOrb;
 import com.game.Model.Gun.Bullet;
 import com.game.Model.Manage.GameAssetManager;
 
@@ -22,6 +23,7 @@ public class EnemyController {
     private ArrayList<Enemy> enemies;
     private ArrayList<Bullet> bullets;
     private PlayerController playerController;
+    private ArrayList<XpOrb> orbs;
     private float timeSinceLastTentacleSpawn = 0f;
     private float timeSinceLastEyeBaSpawn = 0f;
     private float elapsedTime = 0f;
@@ -34,6 +36,7 @@ public class EnemyController {
         this.playerController = playerController;
         this.enemies = new ArrayList<>();
         this.bullets = new ArrayList<>();
+        this.orbs = new ArrayList<>();
         Bullet.loadDefaultTexture("bullet.png");
         this.totalGameTime = gameTime * 60;
         spawnTrees(gameTime);
@@ -66,6 +69,7 @@ public class EnemyController {
 
         updateEnemies(deltaTime);
         updateEnemyBullets(deltaTime);
+        updateXpOrbs(deltaTime);
     }
 
     private void spawnElder() {
@@ -95,6 +99,9 @@ public class EnemyController {
             Enemy enemy = enemyIterator.next();
 
             if (!enemy.isActive()) {
+                if (enemy.getHealth() <= 0 && enemy.getType() != EnemyType.Tree) {
+                    orbs.add(new XpOrb(enemy.getEnemyPosition().cpy()));
+                }
                 enemyIterator.remove();
                 continue;
             }
@@ -255,6 +262,46 @@ public class EnemyController {
         }
     }
 
+    private void updateXpOrbs(float deltaTime) {
+
+        Iterator<XpOrb> iterator = orbs.iterator();
+        while(iterator.hasNext()) {
+            XpOrb orb = iterator.next();
+            if(!orb.isActive()) {
+                iterator.remove();
+                continue;
+            }
+
+            Vector2 playerPosition = playerController.getPlayerPosition();
+            CollisionRect collisionRect = new CollisionRect(
+                playerPosition.x,
+                playerPosition.y,
+                playerController.getTexture().getWidth() * 3,
+                playerController.getTexture().getHeight() * 3
+            );
+
+            if (orb.getRect().collidesWith(collisionRect)) {
+                playerController.getCurrentPlayer().addXp(XpOrb.XP_VALUE);
+                orb.setActive(false);
+            }
+
+            Sprite orbSprite = orb.getSprite();
+
+            float drawX = orb.getPosition().x - playerPosition.x + Gdx.graphics.getWidth()  / 2f;
+            float drawY = orb.getPosition().y - playerPosition.y + Gdx.graphics.getHeight() / 2f;
+            orbSprite.setPosition(
+                drawX - orbSprite.getWidth()  / 2f,
+                drawY - orbSprite.getHeight() / 2f
+            );
+            orb.getRect().move(
+                drawX - orb.getRect().width / 2f,
+                drawY - orb.getRect().height / 2f
+            );
+
+            orbSprite.draw(Main.getBatch());
+        }
+    }
+
     private void handleEnemyAnimation(Enemy enemy) {
         Animation<Texture> animationToPlay = null;
         Animation<TextureRegion> animation = null;
@@ -379,4 +426,7 @@ public class EnemyController {
     public void setElderSpawned() {
         this.elderSpawned = true;
     }
+
+    public ArrayList<XpOrb> getOrbs() { return orbs; }
+
 }

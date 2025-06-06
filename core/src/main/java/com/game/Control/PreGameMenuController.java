@@ -53,6 +53,9 @@ public class PreGameMenuController {
         float time = Float.parseFloat(view.getTimeButton().getText().toString().replace("Min",""));
 
         view.getCurrentPlayer().setPosition(new Vector2(0,0));
+        view.getCurrentPlayer().setLevel(1);
+        view.getCurrentPlayer().setCurrentXp(0);
+        view.getCurrentPlayer().setXpForNextLevel(20);
         Main.getMain().setScreen(new GameView(new GameController(view.getCurrentPlayer(),time,texture,idleAnimation,runingAnimation)));
     }
 

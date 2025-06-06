@@ -2,6 +2,7 @@ package com.game.Control;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -171,6 +172,21 @@ public class GameController {
                 reloadBarFgTexture.getHeight(),
                 false,false);
         }
+
+        Player currentPlayer = playerController.getCurrentPlayer();
+
+        float xpRatio = (float)currentPlayer.getCurrentXp() / currentPlayer.getXpForNextLevel();
+        String xpText = "LVL " + currentPlayer.getLevel() + " (" + currentPlayer.getCurrentXp() + "/" + currentPlayer.getXpForNextLevel() + ")";
+
+        float xpBarWidth = 200f;
+        float xpBarHeight = 15f;
+        float xpBarX = Gdx.graphics.getWidth() / 2f - xpBarWidth / 2f;
+        float xpBarY = 15f;
+
+        batch.draw(reloadBarBgTexture, xpBarX, xpBarY, xpBarWidth, xpBarHeight);
+        batch.draw(reloadBarFgTexture, xpBarX, xpBarY, xpBarWidth * xpRatio, xpBarHeight);
+
+        font.draw(batch, xpText, xpBarX, xpBarY + xpBarHeight + 15);
 
         batch.setProjectionMatrix(oldProjectionMatrix);
     }

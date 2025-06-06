@@ -26,6 +26,8 @@ public class GunController {
     private PlayerController playerController;
     private EnemyController enemyController;
     private Animation<TextureRegion> onGunReloadAnimation;
+    private boolean isAutoAimActive = false;
+    private Enemy autoAimTarget = null;
 
     public GunController(Gun gun, PlayerController playerController, EnemyController enemyController) {
         this.gun = gun;
@@ -35,7 +37,19 @@ public class GunController {
         Bullet.loadDefaultTexture("bullet.png");
     }
 
+    public void toggleAutoAim() {
+        isAutoAimActive = !isAutoAimActive;
+        if (!isAutoAimActive) {
+            autoAimTarget = null;
+        }
+        Gdx.app.log("AutoAim", "Auto-Aim is now: " + (isAutoAimActive ? "ON" : "OFF"));
+    }
+
     public void update(){
+        if (isAutoAimActive) {
+            findAndAimAtNearestEnemy();
+        }
+
         if (gun.isReloading()) {
             gun.addReloadTimeElapsed(Gdx.graphics.getDeltaTime());
             gun.addAnimationStateTime(Gdx.graphics.getDeltaTime());
@@ -55,6 +69,38 @@ public class GunController {
         updateBullets(Gdx.graphics.getDeltaTime());
     }
 
+    private void findAndAimAtNearestEnemy() {
+        if (autoAimTarget == null || !autoAimTarget.isActive()) {
+            autoAimTarget = findNearestEnemy();
+        }
+
+        if (autoAimTarget != null) {
+            Vector2 playerPos = playerController.getCurrentPlayer().getPosition();
+            Vector2 targetPos = autoAimTarget.getEnemyPosition();
+            Vector2 direction = targetPos.cpy().sub(playerPos);
+
+            float angleDeg = direction.angleDeg();
+            gun.getSprite().setRotation(angleDeg);
+        }
+    }
+
+    private Enemy findNearestEnemy() {
+        Enemy nearestEnemy = null;
+        float minDistance = Float.MAX_VALUE;
+        Vector2 playerPos = playerController.getCurrentPlayer().getPosition();
+
+        for (Enemy enemy : enemyController.getEnemies()) {
+            if (enemy.isActive() && enemy.getType() != EnemyType.Tree) {
+                float distance = playerPos.dst2(enemy.getEnemyPosition());
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestEnemy = enemy;
+                }
+            }
+        }
+        return nearestEnemy;
+    }
+
     public void startReload() {
         if (gun.isReloading() || gun.getCurrentAmmo() == gun.getType().getAmmo()) return;
 
@@ -68,6 +114,8 @@ public class GunController {
     }
 
     public void handleGunRotation(int x, int y){
+        if (isAutoAimActive) return;
+
         Sprite gunSprite = gun.getSprite();
 
         float gunCenterX = (float) Gdx.graphics.getWidth() / 2;
